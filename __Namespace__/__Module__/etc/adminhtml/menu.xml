@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+	<menu>
+		<!--<add id="__Namespace_____Module__::__module__" title="__config.plural__" translate="title" module="__Namespace_____Module__" parent="Magento_Backend::content_elements" sortOrder="50" dependsOnModule="__Namespace_____Module__" resource="__Namespace_____Module__::__module__"/>-->
+		<add id="__Namespace_____Module__::__module___items" title="__config.plural__" translate="title"
+			 module="__Namespace_____Module__" parent="Magento_Backend::content_elements" sortOrder="100"
+			 dependsOnModule="__Namespace_____Module__" action="__namespace____module__/item"
+			 resource="__Namespace_____Module__::__module__" />
+	</menu>
+</config>
