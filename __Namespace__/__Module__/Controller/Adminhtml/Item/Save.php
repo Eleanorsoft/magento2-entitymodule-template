@@ -19,35 +19,41 @@ class Save extends Index
 
             $destination = $this->fileSystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath('__config.media_directory__');
 
-            $oldImage = '';
+            
             $formData = $this->getRequest()->getParam('item');
             if (isset($formData['id'])) {
                 $newsModel->load($formData['id']);
                 $oldImage = $newsModel->getImage();
             }
             $newsModel->setData($formData);
+            
+            $imageFields = ['image'];
 
-            if (isset($_FILES['image']) and $_FILES['image']['size'] > 0) {
-                try {
-                    $uploader = $this->uploaderFactory->create(['fileId' => 'image']);
-                    $uploader->setAllowedExtensions(['jpg', 'jpeg', 'gif', 'png']);
-                    $uploader->setAllowRenameFiles(true);
-                    $uploader->setFilesDispersion(true);
-                    $uploader->setAllowCreateFolders(true);
-                    if ($result = $uploader->save($destination)) {
-                        $newsModel->setImage('__config.media_directory__' . $result['file']);
-                    } else {
-                        $newsModel->setImage($oldImage);
+            foreach ($imageFields as $field) {
+                $oldImage = '';
+                if (isset($formData['id'])) { $oldImage = $newsModel->getImage(); }
+                if (isset($_FILES[$field]) and $_FILES[$field]['size'] > 0) {
+                    try {
+                        $uploader = $this->uploaderFactory->create(['fileId' => $field]);
+                        $uploader->setAllowedExtensions(['jpg', 'jpeg', 'gif', 'png']);
+                        $uploader->setAllowRenameFiles(true);
+                        $uploader->setFilesDispersion(true);
+                        $uploader->setAllowCreateFolders(true);
+                        if ($result = $uploader->save($destination)) {
+                            $newsModel->setData($field, '__config.media_directory__' . $result['file']);
+                        } else {
+                            $newsModel->setData($field, $oldImage);
+                        }
+
+                    } catch (\Exception $e) {
+                        $this->messageManager->addError(
+                            __($e->getMessage())
+                        );
+                        $newsModel->setData($field, $oldImage);
                     }
-
-                } catch (\Exception $e) {
-                    $this->messageManager->addError(
-                        __($e->getMessage())
-                    );
-                    $newsModel->setImage($oldImage);
+                } else {
+                    $newsModel->setData($field, $oldImage);
                 }
-            } else {
-                $newsModel->setImage($oldImage);
             }
 
             if (!$newsModel->getId()) {
